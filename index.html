@@ -16,64 +16,84 @@
       margin: 0;
     }
 
-    .parent {
+    .container {
       display: flex;
       align-items: flex-start;
-      margin: 75vh 20vw;
+      margin: 50vh 20vw;
     }
 
     .main {
       flex: 3;
-      border: dashed green;
-      border-width: 10px 5px;
-      height: 300vh;
+      border: 8px dashed green;
+      height: 400vh;
+    }
+
+    .aside-1 {
+      flex: 1;
+      border: 8px dashed red;
+      height: 75vh;
+    }
+
+    .aside-2 {
+      flex: 1;
+      border: 8px dashed blue;
+      height: 250vh;
     }
 
     .sticky {
       position: sticky;
-      flex: 1;
-      border: dashed red;
-      border-width: 10px 5px;
-      height: 50vh;
     }
   </style>
 </head>
 <body>
-<div class="parent">
+<div class="container">
+  <div class="aside-1 sticky"></div>
   <div class="main"></div>
-  <div class="sticky"></div>
+  <div class="aside-2 sticky"></div>
 </div>
 
 <script type="module">
-  let scrollVal = scrollY;
-  let scrollDir = 'up';
-  const stickyEl = document.querySelector('.sticky');
-
-  window.addEventListener('scroll', () => {
-    if (scrollY - scrollVal >= 0) {
-      scrollDir = 'down';
-    } else {
-      scrollDir = 'up';
+  class Sticky {
+    scrollVal = window.scrollY;
+    scrollDir = 'up';
+    scrollHandleBound = () => this.stick();
+    constructor(el) {
+      this.el = el;
+      window.addEventListener('scroll', this.scrollHandleBound, { passive: true });
     }
 
-    scrollVal = scrollY;
+    stick() {
+      if (window.scrollY - this.scrollVal >= 0) {
+        this.scrollDir = 'down';
+      } else {
+        this.scrollDir = 'up';
+      }
 
-    const d = stickyEl.offsetHeight - innerHeight;
+      this.scrollVal = scrollY;
 
-    if (scrollDir === 'down') {
-      stickyEl.style.top = d > 0 ? `${-d}px` : 0;
-      stickyEl.style.marginTop = `${stickyEl.getBoundingClientRect().top - stickyEl.parentElement.getBoundingClientRect().top}px`;
-      stickyEl.style.bottom = '';
-      stickyEl.style.marginBottom = '';
-      stickyEl.style.alignSelf = 'flex-start';
-    } else {
-      stickyEl.style.bottom = d > 0 ? `${-d}px` : `${innerHeight - stickyEl.offsetHeight}px`;
-      stickyEl.style.marginBottom = `${stickyEl.parentElement.getBoundingClientRect().bottom - stickyEl.getBoundingClientRect().bottom}px`;
-      stickyEl.style.top = '';
-      stickyEl.style.marginTop = '';
-      stickyEl.style.alignSelf = 'flex-end';
+      const d = this.el.offsetHeight - window.innerHeight;
+
+      if (this.scrollDir === 'down') {
+        this.el.style.marginTop = `${this.el.getBoundingClientRect().top - this.el.parentElement.getBoundingClientRect().top}px`;
+        this.el.style.marginBottom = '';
+        this.el.style.alignSelf = 'flex-start';
+        this.el.style.top = d > 0 ? `${-d}px` : 0;
+        this.el.style.bottom = '';
+      } else {
+        this.el.style.marginBottom = `${this.el.parentElement.getBoundingClientRect().bottom - this.el.getBoundingClientRect().bottom}px`;
+        this.el.style.marginTop = '';
+        this.el.style.alignSelf = 'flex-end';
+        this.el.style.bottom = `${-d}px`;
+        this.el.style.top = '';
+      }
     }
-  }, { passive: true });
+  }
+
+  document.querySelectorAll('.sticky').forEach((el) => {
+    const sticky = new Sticky(el);
+
+    console.log(sticky);
+  });
 </script>
 </body>
 </html>
